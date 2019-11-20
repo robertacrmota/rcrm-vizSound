@@ -1,0 +1,32 @@
+html, body {
+	background-color: #23232300;
+	font-family: 'Oswald', sans-serif;
+	border: 0;
+	padding: 0;
+}
+#keyboard {
+	background-color: #23232300;
+	text-align: center;
+}
+#header {
+	color: #3CFFEC;
+}
+#canvas-particles {
+	z-index: -1;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+.key-row{
+	display:flex; 
+	flex-direction: row; 
+	justify-content: center;
+}
+.key {
+	display: inline-block;
+	background-color: #232323;
+	padding: 0 1%;
+	border: 1px dashed #3CFFEC;
+	margin: 3px;
+	color: #3CFFEC;
+}	

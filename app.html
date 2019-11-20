@@ -1,0 +1,261 @@
+<!--
+ * 
+ * Copyright (c) 2019
+ *
+ *
+ * @summary Vizsound is an animation and sound app. Key presses create melodies charged with moving particles.
+ * @author Roberta Mota <roberta.cmota@gmail.com>
+ *
+ * Created at     : 2019-11-01 02:21:56 
+ * Last modified  : 2019-11-19 15:31:40
+ *
+ * -->
+<!DOCTYPE html>
+<html>
+<head>
+	<link href="https://fonts.googleapis.com/css?family=Oswald&display=swap" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	<title>VizSound</title>
+</head>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="lib/anime.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.1.2/howler.core.min.js"></script>
+<body>
+	<div id="keyboard">
+		<p id="header">Press any key [A - Z], and turn up the speakers!</p>
+		<div class="key-row">
+			<div class="key" idx=0 keycode="Q" x="0" y="0">Q</div>
+			<div class="key" idx=1 keycode="W" x="0" y="1">W</div>
+			<div class="key" idx=2 keycode="E" x="0" y="2">E</div>
+			<div class="key" idx=3 keycode="R" x="0" y="3">R</div>
+			<div class="key" idx=4 keycode="T" x="0" y="4">T</div>
+			<div class="key" idx=5 keycode="Y" x="0" y="5">Y</div>
+			<div class="key" idx=6 keycode="U" x="0" y="6">U</div>
+			<div class="key" idx=7 keycode="I" x="0" y="7">I</div>
+			<div class="key" idx=8 keycode="O" x="0" y="8">O</div>
+			<div class="key" idx=9 keycode="P" x="0" y="9">P</div>
+		</div>
+		<div class="key-row">
+			<div class="key" idx=10 keycode="A" x="1" y="0">A</div>
+			<div class="key" idx=11 keycode="S" x="1" y="1">S</div>
+			<div class="key" idx=12 keycode="D" x="1" y="2">D</div>
+			<div class="key" idx=13 keycode="F" x="1" y="3">F</div>
+			<div class="key" idx=14 keycode="G" x="1" y="4">G</div>
+			<div class="key" idx=15 keycode="H" x="1" y="5">H</div>
+			<div class="key" idx=16 keycode="J" x="1" y="6">J</div>
+			<div class="key" idx=17 keycode="K" x="1" y="7">K</div>
+			<div class="key" idx=18 keycode="L" x="1" y="8">L</div>
+		</div>
+		<div class="key-row">
+			<div class="key" idx=19 keycode="Z" x="2" y="0">Z</div>
+			<div class="key" idx=20 keycode="X" x="2" y="1">X</div>
+			<div class="key" idx=21 keycode="C" x="2" y="2">C</div>
+			<div class="key" idx=22 keycode="V" x="2" y="3">V</div>
+			<div class="key" idx=23 keycode="B" x="2" y="4">B</div>
+			<div class="key" idx=24 keycode="N" x="2" y="5">N</div>
+			<div class="key" idx=25 keycode="M" x="2" y="6">M</div>
+		</div>
+	</div>
+	<canvas id="canvas-particles"></canvas>
+
+
+<script type="text/javascript">
+	var input_mapping = [
+		{sound: new Howl({ src: ["sounds/bubbles.mp3"]})},
+		{sound: new Howl({ src: ["sounds/clay.mp3"]})},
+		{sound: new Howl({ src: ["sounds/confetti.mp3"]})},
+		{sound: new Howl({ src: ["sounds/corona.mp3"]})},
+		{sound: new Howl({ src: ["sounds/dotted-spiral.mp3"]})},
+		{sound: new Howl({ src: ["sounds/flash-1.mp3"]})},
+		{sound: new Howl({ src: ["sounds/flash-2.mp3"]})},
+		{sound: new Howl({ src: ["sounds/flash-3.mp3"]})},
+		{sound: new Howl({ src: ["sounds/glimmer.mp3"]})},
+		{sound: new Howl({ src: ["sounds/moon.mp3"]})},
+		{sound: new Howl({ src: ["sounds/pinwheel.mp3"]})},
+		{sound: new Howl({ src: ["sounds/piston-1.mp3"]})},
+		{sound: new Howl({ src: ["sounds/piston-2.mp3"]})},
+		{sound: new Howl({ src: ["sounds/piston-3.mp3"]})},
+		{sound: new Howl({ src: ["sounds/prism-1.mp3"]})},
+		{sound: new Howl({ src: ["sounds/prism-2.mp3"]})},
+		{sound: new Howl({ src: ["sounds/prism-3.mp3"]})},
+		{sound: new Howl({ src: ["sounds/splits.mp3"]})},
+		{sound: new Howl({ src: ["sounds/squiggle.mp3"]})},
+		{sound: new Howl({ src: ["sounds/strike.mp3"]})},
+		{sound: new Howl({ src: ["sounds/suspension.mp3"]})},
+		{sound: new Howl({ src: ["sounds/wipe.mp3"]})},
+		{sound: new Howl({ src: ["sounds/timer.mp3"]})},
+		{sound: new Howl({ src: ["sounds/ufo.mp3"]})},
+		{sound: new Howl({ src: ["sounds/veil.mp3"]})},
+		{sound: new Howl({ src: ["sounds/zig-zag.mp3"]})}
+	];
+
+	var keyboardRect = document.getElementById("keyboard").getBoundingClientRect();
+	var keyBgColor = "#232323";
+	var keyBgHighlight = "#FB89FB55";
+	var canvasBgColor = "#232323";
+	var canvas;
+	var ctx;
+	var particles = {};
+	var particleID = 0;
+	var particleNb = 10000;
+	var particleSize = 1.5;
+	var drawInterval;
+
+	$(document).ready(function(){
+		init();		
+	});
+
+	window.onresize = function(event) {
+  		init();
+	};
+
+	function init() {
+		if(drawInterval) {window.clearInterval(drawInterval);}
+
+		animateKeyboard('Q');
+
+		canvas = document.getElementById("canvas-particles");
+		canvas.width = window.innerWidth;
+		canvas.height = window.innerHeight;
+
+		ctx = document.getElementById("canvas-particles").getContext('2d');
+		ctx.fillStyle = canvasBgColor;
+    	ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    	document.querySelectorAll(".key").forEach((elem, i) => {
+			input_mapping[elem.getAttribute("idx")].x = elem.getAttribute("y") * canvas.width / elem.parentNode.children.length;
+			input_mapping[elem.getAttribute("idx")].y = elem.getAttribute("x") * canvas.height / 3.0;
+		});
+
+    	particles = {};
+		particleID = 0;
+		
+		for(var i = 0; i < particleNb; i++) {
+			new Particle();
+		}
+
+    	drawInterval = setInterval(drawCanvas, 30);
+	}
+
+	function animateKeyboard(startKey) {
+
+		var key = $(`div[keycode=${startKey}]`)[0];
+
+		var keys = document.querySelectorAll(".key");
+    		
+    	var keysAnim = {
+			targets: keys,
+			scale: [
+				{value: 1.5, duration: 200, easing: 'easeInCirc'},
+				{value: 1, delay: 100, duration: 200, easing: 'linear'}
+			],
+			delay: function(el, i, length) {
+						var offset = Math.abs(key.getAttribute("x") - el.getAttribute("x")) + 
+								 	 Math.abs(key.getAttribute("y") - el.getAttribute("y"));
+						return 50*offset;
+			},
+		};
+
+		anime(keysAnim);
+	}
+
+	// --------------------------------------------------------------------------
+	//							      PARTICLE SYSTEM
+	// --------------------------------------------------------------------------
+
+	function Particle() {
+		this.id = particleID; 
+		particles[this.id] = this;
+		particleID += 1;
+
+		this.x = Math.random()* canvas.width - 10;
+		this.y = canvas.height / 2.0;
+		this.vX = Math.random() - .5;
+		this.vY = Math.random() - .5;
+		//this.gravity = - 0.8;
+
+		this.color = "#3CFFEC";
+	}
+
+	Particle.prototype.draw = function() {
+		ctx.fillStyle = this.color;
+        ctx.fillRect(this.x, this.y, particleSize, particleSize);
+        this.y += this.vY;
+        this.x += this.vX;
+
+        if(Math.random() < 0.2) {
+	      this.vX = Math.random()  - .5;
+		  this.vY = Math.random()  - .5;
+		}
+
+		if (this.y < 5) { this.vY = .5; }
+		else if (this.y > (canvas.height - 5)) { this.vY = - .5; }
+
+		if (this.x < 5) { this.vX = .5; }
+		else if  (this.x > (canvas.width - 10)) {this.vX = - .5;}
+
+	}
+
+	Particle.prototype.pull = function(orig) {
+		var vecX = (orig.x - this.x);
+		var vecY = (orig.y - this.y);
+		var radius = 200;
+		var d = Math.sqrt(vecX*vecX + vecY*vecY);
+		var force = Math.min(0, radius - d);
+
+		this.vX = force * -(vecX / Math.sqrt(orig.x*orig.x + this.x*this.x));
+		this.vY = force * -(vecY / Math.sqrt(orig.y*orig.y + this.y*this.y));
+	}
+
+	var drawCanvas = function() {
+		// clear canvas
+		ctx.fillStyle = canvasBgColor + '22';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // draw paricles
+        for(var i = 0; i < particleNb; i++) {
+				particles[i].draw();
+		}
+	}
+
+
+	// ---------------------------------------------------------------------------
+	//							     EVENT LISTENERS
+	// ---------------------------------------------------------------------------
+
+	$("body").on("keypress", function(evt) {
+		try{
+			var c = String.fromCharCode(evt.charCode).toUpperCase();
+			var key = $(`div[keycode=${c}]`)[0];
+		}
+		catch(e) {
+			console.error("Error :: invalid input key");
+			return;
+		}
+
+		if (key) {
+
+			// play key sound
+			input_mapping[+key.getAttribute("idx")].sound.play();
+
+			// animate particles
+			for(var i = 0; i < particleNb; i++) {
+				particles[i].pull(input_mapping[+key.getAttribute("idx")]);
+			}
+
+    		// animate keyboard grid		
+    		var keyAnim = {
+    			targets: key,
+    			backgroundColor: [
+    				{value: keyBgHighlight, duration: 200},
+    				{value: keyBgColor, duration: 200}
+    			],
+    			
+    		};
+
+    		anime(keyAnim);
+		}
+	});
+</script>
+</body>
+</html>
